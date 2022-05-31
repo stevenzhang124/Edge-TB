@@ -1,0 +1,12 @@
+__pycache__/
+**/dataset/*
+!**/dataset/.keep
+**/conf/*
+!**/conf/.keep
+!**/conf/README.md
+**/log/*
+!**/log/.keep
+!**/log/README.md
+*.conf
+*.log
+*.yml

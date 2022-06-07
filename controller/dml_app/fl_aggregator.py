@@ -6,9 +6,10 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from flask import Flask, request
 
+import torch
 import dml_utils
 import worker_utils
-from nns.nn_fashion_mnist import nn  # configurable parameter, from nns.whatever import nn.
+from nns.nn_mnist import net  # configurable parameter, from nns.whatever import net.
 
 dirname = os.path.abspath (os.path.dirname (__file__))
 
@@ -20,8 +21,8 @@ ctl_addr = os.getenv ('NET_CTL_ADDRESS')
 agent_addr = os.getenv ('NET_AGENT_ADDRESS')
 node_name = os.getenv ('NET_NODE_NAME')
 
-initial_weights = nn.model.get_weights ()
-input_shape = nn.input_shape
+initial_weights = net.state_dict()
+# input_shape = nn.input_shape
 log_file = os.path.abspath (os.path.join (dirname, '../dml_file/log/',
 	node_name + '.log'))
 worker_utils.set_log (log_file)
@@ -29,9 +30,8 @@ conf = {}
 trainer_list = []
 trainer_per_round = 0
 # configurable parameter, specify the dataset path.
-test_path = os.path.join (dirname, '../dataset/FASHION_MNIST/test_data')
-test_images: np.ndarray
-test_labels: np.ndarray
+test_path = os.path.join (dirname, '../dataset/MNIST/')
+
 
 app = Flask (__name__)
 weights_lock = threading.Lock ()
@@ -57,9 +57,8 @@ def route_conf_d ():
 	conf.update (json.loads (f))
 	print ('POST at /conf/dataset')
 
-	global test_images, test_labels
-	test_images, test_labels = dml_utils.load_data (test_path, conf ['test_start_index'],
-		conf ['test_len'], input_shape)
+	global test_data
+	test_data = dml_utils.load_data (test_path, conf ['test_start_index'], conf ['test_len'], conf ['batch_size'], train=False)
 
 	filename = os.path.join (dirname, '../dml_file/conf', node_name + '_dataset.conf')
 	with open (filename, 'w') as fw:
@@ -186,7 +185,7 @@ def route_start ():
 	# else:
 	# 	print("ctl_addr is null")
 	# print(ctl_addr, agent_addr, node_name)
-	_, initial_acc = dml_utils.test (nn.model, test_images, test_labels)
+	_, initial_acc = dml_utils.test (net, test_data, conf ['batch_size'])
 	msg = dml_utils.log_acc (initial_acc, 0)
 	worker_utils.send_print (ctl_addr, node_name + ': ' + msg)
 	executor.submit (on_route_start)
@@ -195,7 +194,9 @@ def route_start ():
 
 def on_route_start ():
 	# trainers = dml_utils.random_selection (trainer_list, trainer_per_round)
-	trainers = customized_selection (trainer_per_round)
+	# trainers = customized_selection (trainer_per_round)
+	# trainers = ['p1','p2','n3']
+	trainers = ['p3', 'n1','n2']
 	print(trainers)
 	dml_utils.send_weights (initial_weights, '/train', trainers, conf ['connect'])
 	worker_utils.send_print (ctl_addr, 'start FL')
@@ -205,8 +206,11 @@ def on_route_start ():
 @app.route ('/combine', methods=['POST'])
 def route_combine ():
 	print ('POST at /combine')
-	weights = dml_utils.parse_weights (request.files.get ('weights'))
-	executor.submit (on_route_combine, weights)
+	# weights = dml_utils.parse_weights (request.files.get ('weights'))
+	weights_rb = request.files.get ('weights')
+	weights = torch.load(weights_rb)
+	# executor.submit (on_route_combine, weights)
+	on_route_combine (weights)
 	return ''
 
 
@@ -224,12 +228,15 @@ def on_route_combine (weights):
 def combine_weights ():
 	weights = dml_utils.avg_weights (conf ['received_weights'],
 		conf ['received_number'])
-	dml_utils.assign_weights (nn.model, weights)
+	# dml_utils.assign_weights (net, weights)
+	net.load_state_dict(weights)
 	conf ['received_weights'].clear ()
 	conf ['received_number'] = 0
 	conf ['current_round'] += 1
 
-	_, acc = dml_utils.test (nn.model, test_images, test_labels)
+	print('Testing')
+	# _, acc = dml_utils.test (net, test_images, test_labels)
+	_, acc = dml_utils.test (net, test_data, conf ['batch_size'])
 	msg = dml_utils.log_acc (acc, conf ['current_round'])
 	worker_utils.send_print (ctl_addr, node_name + ': ' + msg)
 
@@ -239,7 +246,8 @@ def combine_weights ():
 	# send down to train.
 	else:
 		# trainers = dml_utils.random_selection (trainer_list, trainer_per_round)
-		trainers = customized_selection (trainer_per_round)
+		# trainers = customized_selection (trainer_per_round)
+		trainers = ['p3', 'n1','n2']
 		dml_utils.send_weights (weights, '/train', trainers, conf ['connect'])
 
 

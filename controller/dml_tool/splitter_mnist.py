@@ -1,6 +1,35 @@
 """
 this file loads mnist from keras and cut the data into several pieces in sequence.
 """
+from torchvision import datasets, transforms
+
+def mnist_iid(dataset, num_users):
+    """
+    Sample I.I.D. client data from MNIST dataset
+    :param dataset:
+    :param num_users:
+    :return: dict of image index
+    """
+    num_items = int(len(dataset)/num_users)
+    dict_users, all_idxs = {}, [i for i in range(len(dataset))]
+    for i in range(num_users):
+        dict_users[i] = set(np.random.choice(all_idxs, num_items, replace=False))
+        all_idxs = list(set(all_idxs) - dict_users[i])
+    return dict_users
+
+if __name__ == '__main__':
+	# load dataset
+	trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+	dataset_train = datasets.MNIST('../dataset/MNIST/', train=True, download=True, transform=trans_mnist)
+	dataset_test = datasets.MNIST('../dataset/MNIST/', train=False, download=True, transform=trans_mnist)
+
+	# print(len(dataset_train))
+
+
+
+"""
+this file loads mnist from keras and cut the data into several pieces in sequence.
+
 import os
 
 import numpy as np
@@ -35,3 +64,4 @@ if __name__ == '__main__':
 
 	test_images_loader, test_labels_loader = split_data (test_images, test_labels, test_batch, test_drop_last)
 	save_data (test_images_loader, test_labels_loader, test_path, one_hot)
+"""

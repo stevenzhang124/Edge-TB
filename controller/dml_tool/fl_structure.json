@@ -1,6 +1,6 @@
 {
 "node_list": [
-{"name": "p4", "trainer_fraction": 0.2, "sync": 75},
+{"name": "p4", "trainer_fraction": 0.2, "sync": 5},
 
 {"name": "p1", "epoch": 1},
 {"name": "p2", "epoch": 1},

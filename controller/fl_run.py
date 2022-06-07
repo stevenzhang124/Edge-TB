@@ -30,27 +30,27 @@ if __name__ == '__main__':
 	p1.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p1.mount_nfs (tag='dataset', mount_point='./dataset')
 	p1.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_trainer.py'])
-	net.asymmetrical_link (p4, p1, bw=10, unit='mbps')
-	net.asymmetrical_link (p1, p4, bw=random.randint (200, 500), unit='kbps')
+	net.asymmetrical_link (p4, p1, bw=50, unit='mbps')
+	net.asymmetrical_link (p1, p4, bw=random.randint (20, 50), unit='mbps')
 
-	p2 = net.add_physical_node (name='p2', nic='wlan0', ip='192.168.1.105')
+	p2 = net.add_physical_node (name='p2', nic='wlan0', ip='192.168.1.111')
 	p2.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p2.mount_nfs (tag='dataset', mount_point='./dataset')
 	p2.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_trainer.py'])
-	net.asymmetrical_link (p4, p2, bw=10, unit='mbps')
-	net.asymmetrical_link (p2, p4, bw=random.randint (200, 500), unit='kbps')
+	net.asymmetrical_link (p4, p2, bw=50, unit='mbps')
+	net.asymmetrical_link (p2, p4, bw=random.randint (20, 50), unit='mbps')
 
 	p3 = net.add_physical_node (name='p3', nic='wlan0', ip='192.168.1.108')
 	p3.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p3.mount_nfs (tag='dataset', mount_point='./dataset')
 	p3.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_trainer.py'])
-	net.asymmetrical_link (p4, p3, bw=10, unit='mbps')
-	net.asymmetrical_link (p3, p4, bw=random.randint (200, 500), unit='kbps')
+	net.asymmetrical_link (p4, p3, bw=50, unit='mbps')
+	net.asymmetrical_link (p3, p4, bw=random.randint (20, 50), unit='mbps')
 
 	emu = net.add_emulator ('3990x', '192.168.1.103')
 	emu.mount_nfs ('dml_app')
 	emu.mount_nfs ('dataset')
-	for i in range (12):
+	for i in range (13):
 		#cpu = (i % 4) * 2
 		cpu = (i % 3)
 		if cpu == 0:
@@ -61,8 +61,8 @@ if __name__ == '__main__':
 		n.add_nfs ('dml_app', '/home/worker/dml_app')
 		n.add_nfs ('dataset', '/home/worker/dataset')
 		n.add_port (dml_port, 8001 + i)
-		net.asymmetrical_link (p4, n, bw=10, unit='mbps')
-		net.asymmetrical_link (n, p4, bw=random.randint (200, 500), unit='kbps')
+		net.asymmetrical_link (p4, n, bw=50, unit='mbps')
+		net.asymmetrical_link (n, p4, bw=random.randint (20, 50), unit='mbps')
 
 	net.save_node_ip () #node_ip.json
 

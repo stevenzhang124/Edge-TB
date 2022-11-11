@@ -2,10 +2,10 @@ import torch
 from torch import nn
 import time
 
-#网络的构建
+#construct neural network
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-#定义网络三种方法 1.forward函数 2.Sequential 3. ModuleList
+#three methods to define a neural network 1.forward function 2.Sequential 3. ModuleList
 class LeNet(nn.Module):
     def __init__(self):
         super(LeNet, self).__init__()
@@ -25,7 +25,7 @@ class LeNet(nn.Module):
             nn.Linear(84, 10)
         )
 
-    def forward(self, img):          #具体操作执行
+    def forward(self, img):          #for execute the neural network computation
         feature = self.conv(img)
         output = self.fc(feature.view(img.shape[0], -1))
         return output

@@ -9,7 +9,7 @@ from class_node import Net
 
 if __name__ == '__main__':
 	dirname = os.path.abspath (os.path.dirname (__file__))
-	ip = '192.168.1.107'
+	ip = '192.168.1.108'
 	port = 3333
 	net = Net (ip, port)
 	net.add_nfs (tag='dml_app', ip='192.168.1.1', mask=24,
@@ -21,12 +21,12 @@ if __name__ == '__main__':
 
 	dml_port = 4444
 
-	p4 = net.add_physical_node ('p4', 'wlan0', '192.168.1.102')
+	p4 = net.add_physical_node ('p4', 'wlan0', '192.168.1.109')
 	p4.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p4.mount_nfs (tag='dataset', mount_point='./dataset')
 	p4.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_aggregator.py'])
 
-	p1 = net.add_physical_node (name='p1', nic='wlan0', ip='192.168.1.100')
+	p1 = net.add_physical_node (name='p1', nic='wlan0', ip='192.168.1.110')
 	p1.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p1.mount_nfs (tag='dataset', mount_point='./dataset')
 	p1.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_trainer.py'])
@@ -40,14 +40,14 @@ if __name__ == '__main__':
 	net.asymmetrical_link (p4, p2, bw=50, unit='mbps')
 	net.asymmetrical_link (p2, p4, bw=random.randint (20, 50), unit='mbps')
 
-	p3 = net.add_physical_node (name='p3', nic='wlan0', ip='192.168.1.108')
+	p3 = net.add_physical_node (name='p3', nic='wlan0', ip='192.168.1.112')
 	p3.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p3.mount_nfs (tag='dataset', mount_point='./dataset')
 	p3.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_trainer.py'])
 	net.asymmetrical_link (p4, p3, bw=50, unit='mbps')
 	net.asymmetrical_link (p3, p4, bw=random.randint (20, 50), unit='mbps')
 
-	emu = net.add_emulator ('3990x', '192.168.1.103')
+	emu = net.add_emulator ('3990x', '192.168.1.100')
 	emu.mount_nfs ('dml_app')
 	emu.mount_nfs ('dataset')
 	for i in range (13):

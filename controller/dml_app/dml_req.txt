@@ -1,4 +1,4 @@
 flask
 numpy
 requests
-tensorflow>=2
+#tensorflow>=2

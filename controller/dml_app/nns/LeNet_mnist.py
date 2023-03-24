@@ -54,7 +54,8 @@ class Cnn(nn.Module):
 
 
 model = Cnn(1, 10)  # 图片大小是28x28,输入深度是1，最终输出的10类
-use_gpu = torch.cuda.is_available()  # 判断是否有GPU加速
+# use_gpu = torch.cuda.is_available()  # 判断是否有GPU加速
+use_gpu = False
 if use_gpu:
     model = model.cuda()
 

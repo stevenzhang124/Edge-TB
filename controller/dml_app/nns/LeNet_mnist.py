@@ -117,7 +117,7 @@ for epoch in range(num_epoches):
         """
     end_time = time.time()
     print('Finish {} epoch, Loss: {:.6f}, Acc: {:.6f}, Time:{:.6f}'.format(
-        epoch + 1, running_loss / (len(train_dataset)), running_acc / (len(train_dataset))), start_time-end_time)
+        epoch + 1, running_loss / (len(train_dataset)), running_acc / (len(train_dataset)), (end_time-start_time)))
     model.eval()
     eval_loss = 0
     eval_acc = 0

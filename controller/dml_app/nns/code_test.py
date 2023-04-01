@@ -25,6 +25,7 @@ net = CNNMnist()
 print(net)
 print(type(net.state_dict()))
 print(net.state_dict())
-for name, value in model.state_dict():
+for name in net.state_dict():
 	print(name)
-	print(value)
+print(net.state_dict()['0.bias'])
+print(net.state_dict()['3.bias'])

@@ -70,7 +70,7 @@ for name in net.state_dict():
 # print(net.state_dict()['3.bias'])
 print(type(net.named_parameters()))
 for name,param in net.named_parameters():
-	print(name，param)
+	print(name, param)
 
 
 
@@ -88,6 +88,6 @@ for name in net_2.state_dict():
 # print(net.state_dict()['3.bias'])
 print(type(net_2.named_parameters()))
 for name,param in net_2.named_parameters():
-	print(name，param)
+	print(name, param)
 
 

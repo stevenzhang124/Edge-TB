@@ -199,6 +199,7 @@ def on_route_start ():
 	trainers = ['p3', 'n1','n2']
 	print(trainers)
 	dml_utils.send_weights (initial_weights, '/train', trainers, conf ['connect'])
+	dml_utils.send_weights_split (initial_weights, '/train', trainers, conf ['connect'], conf['client_layers'])
 	worker_utils.send_print (ctl_addr, 'start FL')
 
 

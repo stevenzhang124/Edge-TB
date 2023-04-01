@@ -193,6 +193,34 @@ def send_weights_helper (weights, data, addr, is_forward):
 	worker_utils.log ('send weights to ' + addr + ', cost=' + str (e - s))
 
 
+def send_weights_split (weights, path, node_list, connect, client_layers, forward=None, layer=-1):
+	self = 0
+	torch.save(weights, '../dml_file/local_model.pkl')
+	# np.save (write, weights)
+	# write.seek (0)
+	for node in node_list:
+		if node == 'self':
+			self = 1
+			continue
+		if node in connect:
+			addr = connect [node]
+			data = {'path': path, 'layer': str (layer)}
+			# send_weights_helper (write, data, addr, is_forward=False)
+			# get the weights of the specified layers
+			client_weigths = client_layers [node]
+			send_weights_helper (weights, data, addr, is_forward=False)
+		elif forward:
+			addr = forward [node]
+			data = {'node': node, 'path': path, 'layer': str (layer)}
+			# send_weights_helper (write, data, addr, is_forward=True)
+			send_weights_helper (weights, data, addr, is_forward=True)
+		else:
+			Exception ('has not connect to ' + node)
+		# write.seek (0)
+	# write.truncate ()
+	return self
+
+
 def random_selection (node_list, number):
 	return np.random.choice (node_list, number, replace=False)
 

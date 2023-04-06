@@ -9,7 +9,8 @@ from flask import Flask, request
 import torch
 import dml_utils
 import worker_utils
-from nns.nn_mnist import net  # configurable parameter, from nns.whatever import net.
+#from nns.nn_mnist import net  # configurable parameter, from nns.whatever import net.
+from nns.nn_mnist import LeNet_server_side, LeNet_full_model
 
 dirname = os.path.abspath (os.path.dirname (__file__))
 
@@ -77,6 +78,13 @@ def route_conf_s ():
 	trainer_list.extend (conf ['child_node'])
 	trainer_per_round = int (len (trainer_list) * conf ['trainer_fraction'])
 	print ('POST at /conf/structure')
+
+	# define the server side and full model here
+	global net_1, net_2, net_3, net
+	net_1 = LeNet_server_side(1)
+	net_2 = LeNet_server_side(2)
+	net_3 = LeNet_server_side(3)
+	net = LeNet_full_model()
 
 	filename = os.path.join (dirname, '../dml_file/conf', node_name + '_structure.conf')
 	with open (filename, 'w') as fw:
@@ -198,9 +206,75 @@ def on_route_start ():
 	# trainers = ['p1','p2','n3']
 	trainers = ['p3', 'n1','n2']
 	print(trainers)
-	dml_utils.send_weights (initial_weights, '/train', trainers, conf ['connect'])
-	dml_utils.send_weights_split (initial_weights, '/train', trainers, conf ['connect'], conf['client_layers'])
+	# dml_utils.send_weights (initial_weights, '/train', trainers, conf ['connect'])
+	dml_utils.send_weights_split (initial_weights, '/train', trainers, conf ['connect'], conf['clients_layers'])
 	worker_utils.send_print (ctl_addr, 'start FL')
+
+
+# continue the forward calculation
+@app.route('/get_activation', methods=['POST'])
+def get_activation ():
+    data = request.json
+    client_layers = data['client_layers']
+    activation = torch.Tensor(data['activation']).requires_grad_(True)
+    labels = torch.Tensor(data['labels']).view(-1)
+
+    # need to know the labels of this batch of training data
+    loss, client_gradients = server_train(client_layers, activation, labels)
+
+    # have to serilize the variables, otherwise there may be wrong
+
+
+    return json.dumps({'loss': loss, 'client_gradients': client_gradients})
+
+
+def server_train (client_layers, activation_torch, labels_torch):
+	if client_layers == 1:
+		loss, client_gradients = dml_utils.server_split_train (net_1, activation_torch, labels_torch)
+
+	if client_layers == 2:
+		loss, client_gradients = dml_utils.server_split_train (net_2, activation_torch, labels_torch)
+
+	if client_layers == 3:
+		loss, client_gradients = dml_utils.server_split_train (net_3, activation_torch, labels_torch)
+
+	return loss, client_gradients
+
+
+# combine request from clients for split learning
+@app.route ('/combine_split', methods=['POST'])
+def combine_split ():
+	print ('POST at /combine')
+	# weights = dml_utils.parse_weights (request.files.get ('weights'))
+	weights_rb = request.files.get ('weights')
+	data = request.json
+	client_layers = data['client_layers']
+
+	weights = torch.load(weights_rb)
+
+	# executor.submit (on_route_combine, weights)
+	on_route_combine_split (weights, client_layers)
+	return ''
+
+def on_route_combine_split (client_weights, client_layers):
+	if client_layers == 1:
+		weights = client_weights.update(net_1.state_dict())
+
+	if client_layers == 2:
+		weights = client_weights.update(net_2.state_dict())
+
+	if client_layers == 3:
+		weights = client_weights.update(net_3.state_dict())
+
+
+	weights_lock.acquire ()
+	conf ['received_number'] += 1
+	dml_utils.store_weights (conf ['received_weights'], weights,
+		conf ['received_number'])
+	weights_lock.release ()
+
+	if conf ['received_number'] == trainer_per_round:
+		combine_weights ()
 
 
 # combine request from the lower layer node.
@@ -249,7 +323,8 @@ def combine_weights ():
 		# trainers = dml_utils.random_selection (trainer_list, trainer_per_round)
 		# trainers = customized_selection (trainer_per_round)
 		trainers = ['p3', 'n1','n2']
-		dml_utils.send_weights (weights, '/train', trainers, conf ['connect'])
+		#dml_utils.send_weights (weights, '/train', trainers, conf ['connect'])
+		dml_utils.send_weights_split (weights, '/train', trainers, conf ['connect'], conf['clients_layers'])
 
 
 app.run (host='0.0.0.0', port=dml_port, threaded=True, debug=True)

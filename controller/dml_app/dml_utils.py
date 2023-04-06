@@ -124,6 +124,82 @@ def test_img(net_g, datatest, batch_size):
 	return accuracy, test_loss
 
 
+def client_train (net, local_dataset, conf):
+	net.train()
+	# train and update
+	optimizer_client = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
+	
+	epoch_loss = []
+	for iter in range(conf['epoch']):
+		batch_loss = []
+		for batch_idx, (images, labels) in enumerate(local_dataset):
+			optimizer.zero_grad()
+			#-------------  forward prop--------------------------------
+			activation = net(images.float())
+			
+			#------------ send activations to server and receive gradients
+			activations = (activation, labels)
+			received = send_activation (activations, '/get_activation', conf ['father_node'], conf ['connect'], conf ['client_layers'])
+			
+			# de-serizelize
+			loss = received.json()['loss']
+			client_gradients = torch.Tensor(received.json()['client_gradients'])
+
+			#-------------- backward prop
+			activation.backward(client_gradients)
+			optimizer_client.step()
+			if batch_idx % 10 == 0:
+				print('Update Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+						iter, batch_idx * len(images), len(local_dataset.dataset),
+							   100. * batch_idx / len(local_dataset), loss))
+
+			batch_loss.append(loss)
+		epoch_loss.append(sum(batch_loss)/len(batch_loss))
+
+	return epoch_loss, net.state_dict()
+
+
+def send_activation(activation, path, node_list, connect, clients_layers, forward=None, layer=-1):
+	self = 0
+	# torch.save(weights, '../dml_file/local_model.pkl')
+	# np.save (write, weights)
+	# write.seek (0)
+	for node in node_list:
+		if node == 'self':
+			self = 1
+			continue
+		if node in connect:
+			addr = 'http://' + connect [node] + '/' + path
+		    data = {"activation": activation[0].tolist(), 'labels': activation[1].view(-1, 1).tolist(), 'clients_layers':clients_layers}
+		    res = requests.post(addr, json=data)
+		elif forward:
+			addr = 'http://' + connect [node] + '/' + path
+			data = {"activation": activation[0].tolist(), 'labels': activation[1].view(-1, 1).tolist(), 'clients_layers':clients_layers}
+		    res = requests.post(addr, json=data)
+		else:
+			Exception ('has not connect to ' + node)
+		# write.seek (0)
+	# write.truncate ()
+	return self
+
+# continue the forward and backward 
+def server_split_train (net, activation, labels):
+	net.train()
+	optimizer_server = torch.optim.SGD(net.parameters(), lr=0.01, momentum=0.5)
+
+	#train and update
+	optimizer_server.zero_grad()
+
+	#------------------ forward prop ------------------------
+	log_probs = net(activation)
+	loss = loss_fn(log_probs, labels.long())
+	loss.backward()
+	client_gradients = activation.grad.clone.detach()
+	optimizer_server.step()
+
+	return loss.item(), client_gradients.tolist()
+
+
 def parse_weights (weights):
 	# w = np.load (weights, allow_pickle=True)
 	# print('here')
@@ -193,9 +269,33 @@ def send_weights_helper (weights, data, addr, is_forward):
 	worker_utils.log ('send weights to ' + addr + ', cost=' + str (e - s))
 
 
-def send_weights_split (weights, path, node_list, connect, client_layers, forward=None, layer=-1):
+def send_client_weights (weights, path, node_list, connect, clients_layers, forward=None, layer=-1):
 	self = 0
-	torch.save(weights, '../dml_file/local_model.pkl')
+	torch.save(weights, '../dml_file/client_weights.pkl')
+	# np.save (write, weights)
+	# write.seek (0)
+	for node in node_list:
+		if node == 'self':
+			self = 1
+			continue
+		if node in connect:
+			addr = 'http://' + connect [node] + '/' + path
+			data = {'client_layers': client_layers}
+			res = requests.post(addr, json=data, files={'weights': open(client_weight_file, 'rb')})
+		elif forward:
+			addr = 'http://' + connect [node] + '/' + path
+			data = {'client_layers': client_layers}
+			res = requests.post(addr, json=json.dumps(data), files={'weights': open(client_weight_file, 'rb')})
+		else:
+			Exception ('has not connect to ' + node)
+		# write.seek (0)
+	# write.truncate ()
+	return self
+
+
+def send_weights_split (weights, path, node_list, connect, clients_layers, forward=None, layer=-1):
+	self = 0
+	# torch.save(weights, '../dml_file/local_model.pkl')
 	# np.save (write, weights)
 	# write.seek (0)
 	for node in node_list:
@@ -204,21 +304,51 @@ def send_weights_split (weights, path, node_list, connect, client_layers, forwar
 			continue
 		if node in connect:
 			addr = connect [node]
+			client_layer = clients_layers[node]
+			client_weight_file = get_client_weights(weights, node, client_layer)
 			data = {'path': path, 'layer': str (layer)}
-			# send_weights_helper (write, data, addr, is_forward=False)
-			# get the weights of the specified layers
-			client_weigths = client_layers [node]
-			send_weights_helper (weights, data, addr, is_forward=False)
+			send_weights_split_helper (client_weight_file, data, addr, is_forward=False)
 		elif forward:
 			addr = forward [node]
-			data = {'node': node, 'path': path, 'layer': str (layer)}
-			# send_weights_helper (write, data, addr, is_forward=True)
-			send_weights_helper (weights, data, addr, is_forward=True)
+			client_layers = clients_layers[node]
+			client_weight_file = get_client_weights(weights, node, client_layers)
+			data = {'path': path, 'layer': str (layer)}
+			send_weights_split_helper (client_weight_file, data, addr, is_forward=True)
 		else:
 			Exception ('has not connect to ' + node)
 		# write.seek (0)
 	# write.truncate ()
 	return self
+
+def get_client_weights(weights, node, client_layer):
+	if client_layer == 1:
+		cleint_weight = {k:v for k, v in weights.items() if 'conv1' in k}
+
+	if client_layer == 2:
+		cleint_weight = {k:v for k, v in weights.items() if 'conv1' in k or 'conv2' in k}
+
+	if client_layer == 3:
+		cleint_weight = {k:v for k, v in weights.items() if 'conv1' in k or 'conv2' in k or 'fc1' in k}
+
+	if client_layer == 4:
+		cleint_weight = weights
+
+	client_weight_file_addr = '../dml_file/' + node + '_local_model.pkl'
+	torch.save(cleint_weight, client_weight_file_addr)
+
+	return client_weight_file_addr
+
+
+def send_weights_split_helper (client_weight_file, data, addr, is_forward):
+	s = time.time ()
+	if not is_forward:
+		worker_utils.send_data ('POST', data ['path'], addr, data=data, files={'weights': open(client_weight_file, 'rb')})
+	else:
+		worker_utils.log ('need ' + addr + ' to forward to ' + data ['node'] + data ['path'])
+		worker_utils.send_data ('POST', '/forward', addr, data=data, files={'weights': open(client_weight_file, 'rb')})
+	e = time.time ()
+	worker_utils.log ('send weights to ' + addr + ', cost=' + str (e - s))
+
 
 
 def random_selection (node_list, number):

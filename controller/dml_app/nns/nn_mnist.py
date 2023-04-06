@@ -68,11 +68,27 @@ class LeNet_client_side(nn.Module):
     def __init__(self, client_layers):
         super(LeNet_client_side, self).__init__()
         self.client_layers = client_layers
-        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
-        self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+
+        if self.client_layers == 1:
+            self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
+
+        if self.client_layers == 2:
+            self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
+            self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+            self.conv2_drop = nn.Dropout2d()
+
+        if self.client_layers == 3:
+            self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
+            self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+            self.conv2_drop = nn.Dropout2d()
+            self.fc1 = nn.Linear(320, 50)
+        
+        if self.client_layers == 4: 
+            self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
+            self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+            self.conv2_drop = nn.Dropout2d()
+            self.fc1 = nn.Linear(320, 50)
+            self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
         if self.client_layers == 1:
@@ -103,11 +119,19 @@ class LeNet_server_side(nn.Module):
     def __init__(self, client_layers):
         super(LeNet_server_side, self).__init__()
         self.client_layers = client_layers
-        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
-        self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+
+        if self.client_layers == 1:
+            self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
+            self.conv2_drop = nn.Dropout2d()
+            self.fc1 = nn.Linear(320, 50)
+            self.fc2 = nn.Linear(50, 10)
+
+        if self.client_layers == 2:
+            self.fc1 = nn.Linear(320, 50)
+            self.fc2 = nn.Linear(50, 10)
+        
+        if self.client_layers == 3:
+            self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
         if self.client_layers == 1:

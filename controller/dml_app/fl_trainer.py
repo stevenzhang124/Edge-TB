@@ -10,7 +10,8 @@ from flask import Flask, request
 import torch
 import dml_utils
 import worker_utils
-from nns.nn_mnist import net  # configurable parameter, from nns.whatever import net.
+# from nns.nn_mnist import net  # configurable parameter, from nns.whatever import net.
+from nns.nn_mnist import LeNet_client_side
 
 dirname = os.path.abspath (os.path.dirname (__file__))
 
@@ -71,6 +72,9 @@ def route_conf_s ():
 	conf ['current_round'] = 0
 	print ('POST at /conf/structure')
 
+	global net
+	net = LeNet_client_side(conf['client_layers'])
+
 	filename = os.path.join (dirname, '../dml_file/conf', node_name + '_structure.conf')
 	with open (filename, 'w') as fw:
 		fw.writelines (json.dumps (conf, indent=2))
@@ -119,15 +123,15 @@ def route_train ():
 	weights_rb = request.files.get ('weights')
 	weights = torch.load(weights_rb)
 	print("parse weights")
-	executor.submit (on_route_train, weights)
+	# executor.submit (on_route_train, weights)
+	executor.submit(on_route_train_split, weights)
 	return ''
 
 
 def on_route_train (received_weights):
 	net.load_state_dict(received_weights)
 	print("updated local weights")
-	loss_list = dml_utils.train (net, local_data,
-		conf ['epoch'], conf ['batch_size'])
+	loss_list = dml_utils.train (net, local_data, conf ['epoch'], conf ['batch_size'])
 	conf ['current_round'] += 1
 
 	last_epoch_loss = loss_list [-1]
@@ -135,5 +139,16 @@ def on_route_train (received_weights):
 	worker_utils.send_print (ctl_addr, node_name + ': ' + msg)
 	dml_utils.send_weights (net.state_dict(), '/combine', conf ['father_node'], conf ['connect'])
 
+# modify here to send the activations to server
+def on_route_train_split (received_weights):
+	net.load_state_dict(received_weights)
+	print("updated local weights")
+	loss_list, client_weight = dml_utils.client_train (net, local_data, conf)
+	conf ['current_round'] += 1
+
+	last_epoch_loss = loss_list [-1]
+	msg = dml_utils.log_loss (last_epoch_loss, conf ['current_round'])
+	worker_utils.send_print (ctl_addr, node_name + ': ' + msg)
+	dml_utils.send_client_weights (client_weight, '/combine_split', conf ['father_node'], conf ['connect'], conf['client_layers'])
 
 app.run (host='0.0.0.0', port=dml_port, threaded=True, debug=True)

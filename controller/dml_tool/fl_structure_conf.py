@@ -37,6 +37,8 @@ class Conf:
 		self.sync = 0
 		self.epoch = 0
 		self.connect = {}
+		self.client_layers = 0
+		self.clients_layers = {}
 
 	def __hash__ (self):
 		return hash (self.name)
@@ -48,12 +50,14 @@ class Conf:
 				'sync': self.sync,
 				'child_node': self.child_node,
 				'connect': self.connect,
+				'clients_layers': self.clients_layers,
 			}
 		else:
 			return {
 				'epoch': self.epoch,
 				'father_node': self.father_node,
 				'connect': self.connect,
+				'client_layers': self.client_layers,
 			}
 
 
@@ -73,6 +77,11 @@ def gen_conf ():
 				'duplicate link from ' + agg_name + ' to ' + dest)
 			agg_conf.connect [dest] = node_to_path (dest)
 
+	for i in range (1, len (_node_list)):
+		trainer = _node_list [i]
+		name = trainer ['name']
+		agg_conf.clients_layers [name] = trainer['client_layers']
+		
 	# trainers
 	for i in range (1, len (_node_list)):
 		trainer = _node_list [i]
@@ -82,6 +91,7 @@ def gen_conf ():
 		conf = node_conf_map [name] = Conf (name)
 
 		conf.epoch = trainer ['epoch']
+		conf.client_layers = trainer['client_layers']
 		conf.father_node.append (agg_name)
 		agg_conf.child_node.append (name)
 

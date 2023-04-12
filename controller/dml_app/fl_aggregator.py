@@ -215,7 +215,7 @@ def on_route_start ():
 @app.route('/get_activation', methods=['POST'])
 def get_activation ():
     data = request.json
-    client_layers = data['client_layers']
+    client_layers = int(data['client_layers'])
     activation = torch.Tensor(data['activation']).requires_grad_(True)
     labels = torch.Tensor(data['labels']).view(-1)
 

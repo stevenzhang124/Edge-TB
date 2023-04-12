@@ -170,12 +170,12 @@ def send_activation(activation, path, node_list, connect, clients_layers, forwar
 			continue
 		if node in connect:
 			addr = 'http://' + connect [node] + '/' + path
-		    data = {"activation": activation[0].tolist(), 'labels': activation[1].view(-1, 1).tolist(), 'clients_layers':clients_layers}
-		    res = requests.post(addr, json=data)
+			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
+			res = requests.post(addr, json=data)
 		elif forward:
 			addr = 'http://' + connect [node] + '/' + path
-			data = {"activation": activation[0].tolist(), 'labels': activation[1].view(-1, 1).tolist(), 'clients_layers':clients_layers}
-		    res = requests.post(addr, json=data)
+			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
+			res = requests.post(addr, json=data)
 		else:
 			Exception ('has not connect to ' + node)
 		# write.seek (0)
@@ -280,11 +280,11 @@ def send_client_weights (weights, path, node_list, connect, clients_layers, forw
 			continue
 		if node in connect:
 			addr = 'http://' + connect [node] + '/' + path
-			data = {'client_layers': client_layers}
+			data = {'client_layers': str(client_layers)}
 			res = requests.post(addr, json=data, files={'weights': open(client_weight_file, 'rb')})
 		elif forward:
 			addr = 'http://' + connect [node] + '/' + path
-			data = {'client_layers': client_layers}
+			data = {'client_layers': str(client_layers)}
 			res = requests.post(addr, json=json.dumps(data), files={'weights': open(client_weight_file, 'rb')})
 		else:
 			Exception ('has not connect to ' + node)
@@ -310,7 +310,7 @@ def send_weights_split (weights, path, node_list, connect, clients_layers, forwa
 			send_weights_split_helper (client_weight_file, data, addr, is_forward=False)
 		elif forward:
 			addr = forward [node]
-			client_layers = clients_layers[node]
+			client_layers = int(clients_layers[node])
 			client_weight_file = get_client_weights(weights, node, client_layers)
 			data = {'path': path, 'layer': str (layer)}
 			send_weights_split_helper (client_weight_file, data, addr, is_forward=True)
@@ -376,3 +376,5 @@ def log_acc (acc, _round, layer=-1):
 		message = 'Aggregate: accuracy={}, round={},'.format (acc, _round)
 	worker_utils.log (message)
 	return message
+
+print("hello world")

@@ -9,7 +9,7 @@ from class_node import Net
 
 if __name__ == '__main__':
 	dirname = os.path.abspath (os.path.dirname (__file__))
-	ip = '192.168.1.113'
+	ip = '192.168.1.109'
 	port = 3333
 	net = Net (ip, port)
 	net.add_nfs (tag='dml_app', ip='192.168.1.1', mask=24,
@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
 	dml_port = 4444
 
-	p4 = net.add_physical_node ('p4', 'wlan0', '192.168.1.109')
+	p4 = net.add_physical_node ('p4', 'wlan0', '192.168.1.113')
 	p4.mount_nfs (tag='dml_app', mount_point='./dml_app')
 	p4.mount_nfs (tag='dataset', mount_point='./dataset')
 	p4.set_cmd (working_dir='dml_app', cmd=['python3', 'fl_aggregator.py'])

@@ -3,7 +3,6 @@
 {"name": "p4", "trainer_fraction": 0.2, "sync": 5},
 
 {"name": "p1", "epoch": 1, "client_layers": 4},
-{"name": "p2", "epoch": 1, "client_layers": 4},
 {"name": "p3", "epoch": 1, "client_layers": 1},
 {"name": "n1", "epoch": 1, "client_layers": 2},
 {"name": "n2", "epoch": 1, "client_layers": 3},

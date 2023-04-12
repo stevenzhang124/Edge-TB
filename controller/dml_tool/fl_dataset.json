@@ -1,7 +1,6 @@
 {
 "p4": {"test_len": 10000, "test_start_index": 0, "batch_size": 32},
 "p1": {"train_len": 4000, "train_start_index": 0, "batch_size": 32},
-"p2": {"train_len": 4000, "train_start_index": 4000, "batch_size": 32},
 "p3": {"train_len": 4000, "train_start_index": 8000, "batch_size": 32},
 "n1": {"train_len": 4000, "train_start_index": 12000, "batch_size": 32},
 "n2": {"train_len": 4000, "train_start_index": 16000, "batch_size": 32},

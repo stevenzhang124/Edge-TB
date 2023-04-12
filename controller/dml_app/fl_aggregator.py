@@ -22,6 +22,7 @@ ctl_addr = os.getenv ('NET_CTL_ADDRESS')
 agent_addr = os.getenv ('NET_AGENT_ADDRESS')
 node_name = os.getenv ('NET_NODE_NAME')
 
+net = LeNet_full_model()
 initial_weights = net.state_dict()
 # input_shape = nn.input_shape
 log_file = os.path.abspath (os.path.join (dirname, '../dml_file/log/',
@@ -80,11 +81,10 @@ def route_conf_s ():
 	print ('POST at /conf/structure')
 
 	# define the server side and full model here
-	global net_1, net_2, net_3, net
+	global net_1, net_2, net_3
 	net_1 = LeNet_server_side(1)
 	net_2 = LeNet_server_side(2)
 	net_3 = LeNet_server_side(3)
-	net = LeNet_full_model()
 
 	filename = os.path.join (dirname, '../dml_file/conf', node_name + '_structure.conf')
 	with open (filename, 'w') as fw:

@@ -248,7 +248,7 @@ def combine_split ():
 	print ('POST at /combine')
 	# weights = dml_utils.parse_weights (request.files.get ('weights'))
 	weights_rb = request.files.get ('weights')
-	client_layers = int(request.form.get('client_weights'))
+	client_layers = int(request.form.get('client_layers'))
 
 	weights = torch.load(weights_rb)
 

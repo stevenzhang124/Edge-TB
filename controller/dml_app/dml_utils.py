@@ -200,7 +200,7 @@ def server_split_train (net, activation, labels):
 	log_probs = net(activation)
 	loss = loss_fn(log_probs, labels.long())
 	loss.backward()
-	client_gradients = activation.grad.clone.detach()
+	client_gradients = activation.grad.clone().detach()
 	optimizer_server.step()
 
 	return loss.item(), client_gradients.tolist()

@@ -224,7 +224,7 @@ def get_activation ():
 
     # have to serilize the variables, otherwise there may be wrong
 
-
+    print("send back the gradients")
     return json.dumps({'loss': loss, 'client_gradients': client_gradients})
 
 

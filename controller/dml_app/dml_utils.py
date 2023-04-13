@@ -139,6 +139,7 @@ def client_train (net, local_dataset, conf):
 			
 			#------------ send activations to server and receive gradients
 			activations = (activation, labels)
+			print("sending activations to aggregator")
 			received = send_activation (activations, '/get_activation', conf ['father_node'], conf ['connect'], conf ['client_layers'])
 			
 			# de-serizelize

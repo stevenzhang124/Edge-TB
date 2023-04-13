@@ -263,7 +263,7 @@ def combine_split ():
 		weights = client_weights.update(net_3.state_dict())
 
 	# executor.submit (on_route_combine, weights)
-	executor.submit(on_route_combine_split, weights)
+	on_route_combine_split(weights)
 	return ''
 
 def on_route_combine_split (weights):

@@ -133,7 +133,7 @@ def client_train (net, local_dataset, conf):
 	for iter in range(conf['epoch']):
 		batch_loss = []
 		for batch_idx, (images, labels) in enumerate(local_dataset):
-			optimizer.zero_grad()
+			optimizer_client.zero_grad()
 			#-------------  forward prop--------------------------------
 			activation = net(images.float())
 			

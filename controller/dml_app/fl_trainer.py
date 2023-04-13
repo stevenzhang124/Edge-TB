@@ -145,6 +145,8 @@ def on_route_train_split (received_weights):
 	net.load_state_dict(received_weights)
 	print("updated local weights")
 	loss_list, client_weight = dml_utils.client_train (net, local_data, conf)
+
+	print("finish a round of local training")
 	conf ['current_round'] += 1
 
 	last_epoch_loss = loss_list [-1]

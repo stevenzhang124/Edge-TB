@@ -76,52 +76,61 @@
 
 # send_activation(client_output)
 
+#------------------------------------------------------------------------------------------------------------------------
+# import torch
+# import torch.nn as nn
+# import torchvision.datasets as datasets
+# import torchvision.transforms as transforms
+# import requests
 
-import torch
-import torch.nn as nn
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
+# # Define the Model1 class
+# class Model1(torch.nn.Module):
+#     def __init__(self, num_classes=10):
+#         super(Model1, self).__init__()
+#         self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5)
+#         self.avgpool1 = nn.AvgPool2d(kernel_size=2)
+#         self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
+#         self.avgpool2 = nn.AvgPool2d(kernel_size=2)
+
+#     def forward(self, x):
+#         x = nn.functional.relu(self.conv1(x))
+#         x = self.avgpool1(x)
+#         x = nn.functional.relu(self.conv2(x))
+#         x = self.avgpool2(x)
+#         x = x.view(-1, 16*4*4)
+#         return x
+
+# model1 = Model1()
+# # Define the IP address and port of the Model2 server
+# model2_url = 'http://localhost:5001/'
+
+# # Load the MNIST dataset
+# mnist_trainset = datasets.MNIST(root='../../dataset', train=True, download=True, transform=transforms.ToTensor())
+# data_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=32, shuffle=True)
+
+# # Define a criterion and an optimizer for Model1
+# criterion = torch.nn.CrossEntropyLoss()
+# optimizer = torch.optim.SGD(model1.parameters(), lr=0.01)
+
+# # Train Model1 on the MNIST dataset
+# model1 = Model1()
+# for i, (images, labels) in enumerate(data_loader):
+#     optimizer.zero_grad()
+#     activations = model1(images)
+#     labels = labels.view(-1, 1)
+#     response = requests.post(model2_url, json={"activations": activations.tolist(), "labels": labels.tolist()})
+#     gradients = torch.Tensor(response.json()["gradients"])
+#     loss = response.json()["loss"]
+#     activations.backward(gradients)
+#     optimizer.step()
+#     if (i+1) % 10 == 0:
+#         print("Step [{}/{}], Loss: {:.4f}".format(i+1, len(data_loader), loss))
+
 import requests
+import json
 
-# Define the Model1 class
-class Model1(torch.nn.Module):
-    def __init__(self, num_classes=10):
-        super(Model1, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5)
-        self.avgpool1 = nn.AvgPool2d(kernel_size=2)
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
-        self.avgpool2 = nn.AvgPool2d(kernel_size=2)
+url = "http://localhost:5001/endpoint"
+files = {'file': open('code_test.py', 'rb')}
+data = {'key': 'value'}
 
-    def forward(self, x):
-        x = nn.functional.relu(self.conv1(x))
-        x = self.avgpool1(x)
-        x = nn.functional.relu(self.conv2(x))
-        x = self.avgpool2(x)
-        x = x.view(-1, 16*4*4)
-        return x
-
-model1 = Model1()
-# Define the IP address and port of the Model2 server
-model2_url = 'http://localhost:5001/'
-
-# Load the MNIST dataset
-mnist_trainset = datasets.MNIST(root='../../dataset', train=True, download=True, transform=transforms.ToTensor())
-data_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=32, shuffle=True)
-
-# Define a criterion and an optimizer for Model1
-criterion = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model1.parameters(), lr=0.01)
-
-# Train Model1 on the MNIST dataset
-model1 = Model1()
-for i, (images, labels) in enumerate(data_loader):
-    optimizer.zero_grad()
-    activations = model1(images)
-    labels = labels.view(-1, 1)
-    response = requests.post(model2_url, json={"activations": activations.tolist(), "labels": labels.tolist()})
-    gradients = torch.Tensor(response.json()["gradients"])
-    loss = response.json()["loss"]
-    activations.backward(gradients)
-    optimizer.step()
-    if (i+1) % 10 == 0:
-        print("Step [{}/{}], Loss: {:.4f}".format(i+1, len(data_loader), loss))
+response = requests.post(url, files=files, data=data)

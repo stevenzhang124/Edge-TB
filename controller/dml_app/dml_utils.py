@@ -286,12 +286,12 @@ def send_client_weights (weights, path, node_list, connect, clients_layers, forw
 			continue
 		if node in connect:
 			addr = 'http://' + connect [node] + path
-			data = {'client_layers': str(clients_layers)}
-			res = requests.post(addr, json=data, files={'weights': open('../dml_file/client_weights.pkl', 'rb')})
+			data = {'client_layers': clients_layers}
+			res = requests.post(addr, data=data, files={'weights': open('../dml_file/client_weights.pkl', 'rb')})
 		elif forward:
 			addr = 'http://' + connect [node] + path
-			data = {'client_layers': str(clients_layers)}
-			res = requests.post(addr, json=data, files={'weights': open('../dml_file/client_weights.pkl', 'rb')})
+			data = {'client_layers': clients_layers}
+			res = requests.post(addr, data=data, files={'weights': open('../dml_file/client_weights.pkl', 'rb')})
 		else:
 			Exception ('has not connect to ' + node)
 		# write.seek (0)

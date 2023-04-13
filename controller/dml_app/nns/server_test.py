@@ -125,59 +125,75 @@
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5001)
 
-import torch
-import torch.nn as nn
-import requests
-import json
+#----------------------------------------------------------------------------------------
+# import torch
+# import torch.nn as nn
+# import requests
+# import json
+# from flask import Flask, request
+
+# # Define the Model2 class
+# class Model2(torch.nn.Module):
+#     def __init__(self, num_classes=10):
+#         super(Model2, self).__init__()
+#         self.fc1 = nn.Linear(in_features=16*4*4, out_features=120)
+#         self.fc2 = nn.Linear(in_features=120, out_features=84)
+#         self.fc3 = nn.Linear(in_features=84, out_features=num_classes)
+
+#     def forward(self, x):
+#         x = nn.functional.relu(self.fc1(x))
+#         x = nn.functional.relu(self.fc2(x))
+#         x = self.fc3(x)
+#         return x
+
+# # Load the trained weights of Model2
+# model2 = Model2()
+# # model2.load_state_dict(torch.load('model2_weights.pth'))
+
+# # Define the Flask app
+# app = Flask(__name__)
+
+# # Define the endpoint for receiving requests from the client
+# @app.route('/', methods=['POST'])
+# def forward_and_backward():
+#     data = request.json
+#     activations = torch.Tensor(data['activations'])
+#     activations = activations.requires_grad_(True)
+#     labels = torch.tensor(data['labels']).view(-1)
+#     optimizer = torch.optim.SGD(model2.parameters(), lr=0.01)
+
+#     # Forward propagation
+#     outputs = model2(activations)
+
+#     # Calculate loss and gradients
+#     loss = torch.nn.functional.cross_entropy(outputs, labels)
+#     optimizer.zero_grad()
+#     loss.backward()
+#     # gradients = model2.fc1.weight.grad.clone().detach()
+#     gradients = activations.grad.clone().detach()
+
+#     # Update the parameters of Model2
+#     optimizer.step()
+
+#     # Send the gradients to the client
+#     response_data = {'gradients': gradients.tolist(), 'loss': loss.item()}
+#     return json.dumps(response_data)
+
+# if __name__ == '__main__':
+#     app.run(host='localhost', port=5001)
+
 from flask import Flask, request
 
-# Define the Model2 class
-class Model2(torch.nn.Module):
-    def __init__(self, num_classes=10):
-        super(Model2, self).__init__()
-        self.fc1 = nn.Linear(in_features=16*4*4, out_features=120)
-        self.fc2 = nn.Linear(in_features=120, out_features=84)
-        self.fc3 = nn.Linear(in_features=84, out_features=num_classes)
-
-    def forward(self, x):
-        x = nn.functional.relu(self.fc1(x))
-        x = nn.functional.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-# Load the trained weights of Model2
-model2 = Model2()
-# model2.load_state_dict(torch.load('model2_weights.pth'))
-
-# Define the Flask app
 app = Flask(__name__)
 
-# Define the endpoint for receiving requests from the client
-@app.route('/', methods=['POST'])
-def forward_and_backward():
-    data = request.json
-    activations = torch.Tensor(data['activations'])
-    activations = activations.requires_grad_(True)
-    labels = torch.tensor(data['labels']).view(-1)
-    optimizer = torch.optim.SGD(model2.parameters(), lr=0.01)
+@app.route('/endpoint', methods=['POST'])
+def handle_request():
+    data = request.form.get('key')
+    file = request.files.get('file')
+    # do something with the data and the file
+    print(data)
 
-    # Forward propagation
-    outputs = model2(activations)
-
-    # Calculate loss and gradients
-    loss = torch.nn.functional.cross_entropy(outputs, labels)
-    optimizer.zero_grad()
-    loss.backward()
-    # gradients = model2.fc1.weight.grad.clone().detach()
-    gradients = activations.grad.clone().detach()
-
-    # Update the parameters of Model2
-    optimizer.step()
-
-    # Send the gradients to the client
-    response_data = {'gradients': gradients.tolist(), 'loss': loss.item()}
-    return json.dumps(response_data)
+    return 'success'
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5001)
-
+    app.run(host='localhost', port=5001, debug=True)

@@ -285,11 +285,11 @@ def send_client_weights (weights, path, node_list, connect, clients_layers, forw
 			self = 1
 			continue
 		if node in connect:
-			addr = 'http://' + connect [node] + '/' + path
+			addr = 'http://' + connect [node] + path
 			data = {'client_layers': str(clients_layers)}
 			res = requests.post(addr, json=data, files={'weights': open(client_weight_file, 'rb')})
 		elif forward:
-			addr = 'http://' + connect [node] + '/' + path
+			addr = 'http://' + connect [node] + path
 			data = {'client_layers': str(clients_layers)}
 			res = requests.post(addr, json=json.dumps(data), files={'weights': open(client_weight_file, 'rb')})
 		else:

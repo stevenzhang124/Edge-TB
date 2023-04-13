@@ -105,4 +105,4 @@ if __name__ == '__main__':
 	ctl_utils.deploy_all_device (net) #start physical node
 	ctl_utils.deploy_all_yml (net) #start container
 
-	app.run (host='0.0.0.0', port=port, threaded=True)
+	app.run (host='0.0.0.0', port=port, threaded=True, debug=True)

@@ -74,13 +74,14 @@ def route_conf_s ():
 
 	global net
 	net = LeNet_client_side(conf['client_layers'])
+	print(net)
 
 	filename = os.path.join (dirname, '../dml_file/conf', node_name + '_structure.conf')
 	with open (filename, 'w') as fw:
 		fw.writelines (json.dumps (conf, indent=2))
 
 	# for customized selection >>>
-	executor.submit (perf_eval)
+	# executor.submit (perf_eval)
 	# <<< for customized selection
 	return ''
 

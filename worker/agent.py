@@ -511,4 +511,4 @@ def route_device_tc_update ():
 	return '1'
 
 
-app.run (host='0.0.0.0', port=agent_port, threaded=True)
+app.run (host='0.0.0.0', port=agent_port, threaded=True, debug=True)

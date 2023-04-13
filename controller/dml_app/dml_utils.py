@@ -170,18 +170,18 @@ def send_activation(activation, path, node_list, connect, clients_layers, forwar
 			self = 1
 			continue
 		if node in connect:
-			addr = 'http://' + connect [node] + '/' + path
+			addr = 'http://' + connect [node] + path
 			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
 			res = requests.post(addr, json=data)
 		elif forward:
-			addr = 'http://' + connect [node] + '/' + path
+			addr = 'http://' + connect [node] + path
 			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
 			res = requests.post(addr, json=data)
 		else:
 			Exception ('has not connect to ' + node)
 		# write.seek (0)
 	# write.truncate ()
-	return self
+	return res
 
 # continue the forward and backward 
 def server_split_train (net, activation, labels):

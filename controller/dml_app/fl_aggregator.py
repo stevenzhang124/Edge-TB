@@ -214,7 +214,7 @@ def on_route_start ():
 # continue the forward calculation
 @app.route('/get_activation', methods=['POST'])
 def get_activation ():
-    print("perform server train")
+    # print("perform server train")
     data = request.json
     client_layers = int(data['client_layers'])
     activation = torch.Tensor(data['activation']).requires_grad_(True)
@@ -225,7 +225,7 @@ def get_activation ():
 
     # have to serilize the variables, otherwise there may be wrong
 
-    print("send back the gradients")
+    # print("send back the gradients")
     return json.dumps({'loss': loss, 'client_gradients': client_gradients})
 
 
@@ -250,13 +250,9 @@ def combine_split ():
 	weights_rb = request.files.get ('weights')
 	client_layers = int(request.form.get('client_layers'))
 
-	weights = torch.load(weights_rb)
+	client_weights = torch.load(weights_rb)
 
-	# executor.submit (on_route_combine, weights)
-	on_route_combine_split (weights, client_layers)
-	return ''
-
-def on_route_combine_split (client_weights, client_layers):
+	
 	if client_layers == 1:
 		weights = client_weights.update(net_1.state_dict())
 
@@ -266,7 +262,12 @@ def on_route_combine_split (client_weights, client_layers):
 	if client_layers == 3:
 		weights = client_weights.update(net_3.state_dict())
 
+	# executor.submit (on_route_combine, weights)
+	executor.submit(on_route_combine_split, weights)
+	return ''
 
+def on_route_combine_split (weights):
+	
 	weights_lock.acquire ()
 	conf ['received_number'] += 1
 	dml_utils.store_weights (conf ['received_weights'], weights,

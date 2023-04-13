@@ -220,6 +220,7 @@ def get_activation ():
     labels = torch.Tensor(data['labels']).view(-1)
 
     # need to know the labels of this batch of training data
+    print("perform server train")
     loss, client_gradients = server_train(client_layers, activation, labels)
 
     # have to serilize the variables, otherwise there may be wrong

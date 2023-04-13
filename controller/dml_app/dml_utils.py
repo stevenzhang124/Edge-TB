@@ -171,10 +171,12 @@ def send_activation(activation, path, node_list, connect, clients_layers, forwar
 			continue
 		if node in connect:
 			addr = 'http://' + connect [node] + path
+			print(addr)
 			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
 			res = requests.post(addr, json=data)
 		elif forward:
 			addr = 'http://' + connect [node] + path
+			print(addr)
 			data = {"activation": activation[0].tolist(), "labels": activation[1].view(-1, 1).tolist(), "clients_layers": str(clients_layers)}
 			res = requests.post(addr, json=data)
 		else:

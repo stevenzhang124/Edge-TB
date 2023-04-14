@@ -226,6 +226,8 @@ def store_weights (received_weights, new_weights, received_count):
 		received_weights.append(sum_weights) 
 		print("received one")
 
+	return received_weights 
+
 
 def avg_weights (received_weights, received_count):
 	for key in list(received_weights [0].keys()):

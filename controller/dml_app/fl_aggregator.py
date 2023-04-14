@@ -263,15 +263,14 @@ def combine_split ():
 		weights = client_weights.update(net_3.state_dict())
 
 	# executor.submit (on_route_combine, weights)
-	on_route_combine_split(weights)
+	executor.submit(on_route_combine_split, weights)
 	return ''
 
 def on_route_combine_split (weights):
 	
 	weights_lock.acquire ()
 	conf ['received_number'] += 1
-	dml_utils.store_weights (conf ['received_weights'], weights,
-		conf ['received_number'])
+	conf['received_weights'] = dml_utils.store_weights (conf ['received_weights'], weights, conf ['received_number'])
 	weights_lock.release ()
 
 	if conf ['received_number'] == trainer_per_round:
@@ -293,8 +292,7 @@ def route_combine ():
 def on_route_combine (weights):
 	weights_lock.acquire ()
 	conf ['received_number'] += 1
-	dml_utils.store_weights (conf ['received_weights'], weights,
-		conf ['received_number'])
+	conf['received_weights'] = dml_utils.store_weights (conf ['received_weights'], weights, conf ['received_number'])
 	weights_lock.release ()
 
 	if conf ['received_number'] == trainer_per_round:

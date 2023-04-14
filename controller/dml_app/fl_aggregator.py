@@ -249,18 +249,28 @@ def combine_split ():
 	# weights = dml_utils.parse_weights (request.files.get ('weights'))
 	weights_rb = request.files.get ('weights')
 	client_layers = int(request.form.get('client_layers'))
+	print(client_layers)
 
 	client_weights = torch.load(weights_rb)
 
 	
 	if client_layers == 1:
 		weights = client_weights.update(net_1.state_dict())
+		print(type(weights))
+		for name in weights:
+			print(name)
 
 	if client_layers == 2:
 		weights = client_weights.update(net_2.state_dict())
+		print(type(weights))
+		for name in weights:
+			print(name)
 
 	if client_layers == 3:
 		weights = client_weights.update(net_3.state_dict())
+		print(type(weights))
+		for name in weights:
+			print(name)
 
 	# executor.submit (on_route_combine, weights)
 	executor.submit(on_route_combine_split, weights)
@@ -272,6 +282,10 @@ def on_route_combine_split (weights):
 	conf ['received_number'] += 1
 	conf['received_weights'] = dml_utils.store_weights (conf ['received_weights'], weights, conf ['received_number'])
 	weights_lock.release ()
+	
+	print(conf['received_number'])
+	print(len(conf['received_weights']))
+	print(trainer_per_round)
 
 	if conf ['received_number'] == trainer_per_round:
 		combine_weights ()

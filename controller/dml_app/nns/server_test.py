@@ -192,6 +192,7 @@ def handle_request():
     file = request.files.get('file')
     # do something with the data and the file
     print(data)
+    print(file.read())
 
     return 'success'
 

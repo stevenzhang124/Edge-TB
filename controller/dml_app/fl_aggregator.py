@@ -251,23 +251,25 @@ def combine_split ():
 	client_layers = int(request.form.get('client_layers'))
 	print(client_layers)
 
-	client_weights = torch.load(weights_rb)
+	weights = torch.load(weights_rb)
+	for name in weights:
+		print(name)
 
 	
 	if client_layers == 1:
-		weights = client_weights.update(net_1.state_dict())
+		weights.update(net_1.state_dict())
 		print(type(weights))
 		for name in weights:
 			print(name)
 
 	if client_layers == 2:
-		weights = client_weights.update(net_2.state_dict())
+		weights.update(net_2.state_dict())
 		print(type(weights))
 		for name in weights:
 			print(name)
 
 	if client_layers == 3:
-		weights = client_weights.update(net_3.state_dict())
+		weights.update(net_3.state_dict())
 		print(type(weights))
 		for name in weights:
 			print(name)
@@ -282,7 +284,7 @@ def on_route_combine_split (weights):
 	conf ['received_number'] += 1
 	conf['received_weights'] = dml_utils.store_weights (conf ['received_weights'], weights, conf ['received_number'])
 	weights_lock.release ()
-	
+
 	print(conf['received_number'])
 	print(len(conf['received_weights']))
 	print(trainer_per_round)

@@ -220,7 +220,7 @@ def store_weights (received_weights, new_weights, received_count):
 		received_weights.append (new_weights)
 		print("received one")
 	else:
-		for key in list(received_weights [0].keys()):
+		for key in list(received_weights[0].keys()):
 			sum_weights[key] = received_weights[0][key] + new_weights[key]
 		received_weights.pop()
 		received_weights.append(sum_weights) 

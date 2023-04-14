@@ -150,6 +150,11 @@ print("full model loss is ", full_model_loss)
 # print(initial_weight)
 
 
+client_weight.update(server_weight)
+
+
+for name in client_weight:
+	print(name)
 
 
 

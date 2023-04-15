@@ -4,10 +4,10 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-# import matplotlib
-# matplotlib.use('GTK3Agg')
-# import matplotlib.pyplot as plt
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('GTK3Agg')
+import matplotlib.pyplot as plt
+# from matplotlib import pyplot as plt
 from flask import request
 
 import ctl_utils
@@ -172,7 +172,7 @@ def manager (app, net):
 			plt.title ('Accuracy')
 			plt.savefig (os.path.join (path, 'png/', name + '-acc.png'))
 			plt.cla ()
-			plt.close()
+			
 		if loss_list:
 			upper = loss_list [0] * 1.2
 			plt.plot (loss_list, 'go')
@@ -183,4 +183,4 @@ def manager (app, net):
 			plt.title ('Loss')
 			plt.savefig (os.path.join (path, 'png/', name + '-loss.png'))
 			plt.cla ()
-			plt.close()
+			

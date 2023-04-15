@@ -5,7 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 import matplotlib
-matplotlib.use('GTK3Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 # from matplotlib import pyplot as plt
 from flask import request

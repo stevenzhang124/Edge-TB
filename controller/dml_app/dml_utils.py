@@ -117,7 +117,8 @@ def test_img(net_g, datatest, batch_size):
 		correct += y_pred.eq(target.data.view_as(y_pred)).long().cpu().sum()
 
 	test_loss /= len(data_loader.dataset)
-	accuracy = 100.00 * correct / len(data_loader.dataset)
+	accuracy = 1.0 * correct / len(data_loader.dataset)
+	# accuracy = 100.00 * correct / len(data_loader.dataset)
 	# accuracy = correct / len(data_loader.dataset)
 	# if args.verbose:
 	# print('\nTest set: Average loss: {:.4f} \nAccuracy: {}/{} ({:.2f}%)\n'.format(

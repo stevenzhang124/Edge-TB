@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision import datasets
 import time
+import sys
 #from logger import Logger
 
 # 定义超参数
@@ -44,32 +45,32 @@ class LeNet(nn.Module):
         x = self.pool1(F.relu(self.conv1(x)))
         end_time = time.time()
         print("forward time Conv1: ", end_time-start_time)
-        print("Output size Conv1: ", x.__sizeof__())
+        print("Output size Conv1: ", sys.getsizeof(x))
 
         start_time = time.time()
         x = self.pool2(F.relu(self.conv2(x)))
         x = x.view(-1, 16 * 4 * 4)
         end_time = time.time()
         print("forward time Conv2: ", end_time-start_time)
-        print("Output size Conv2: ", x.__sizeof__())
+        print("Output size Conv2: ", sys.getsizeof(x))
 
         start_time = time.time()
         x = F.relu(self.fc1(x))
         end_time = time.time()
         print("forward time FC1: ", end_time-start_time)
-        print("Output size FC1: ", x.__sizeof__())
+        print("Output size FC1: ", sys.getsizeof(x))
 
         start_time = time.time()
         x = F.relu(self.fc2(x))
         end_time = time.time()
         print("forward time FC2: ", end_time-start_time)
-        print("Output size FC2: ", x.__sizeof__())
+        print("Output size FC2: ", sys.getsizeof(x))
 
         start_time = time.time()
         x = self.fc3(x)
         end_time = time.time()
         print("forward time FC3: ", end_time-start_time)
-        print("Output size FC3: ", x.__sizeof__())
+        print("Output size FC3: ", sys.getsizeof(x))
 
         return x
 

@@ -11,7 +11,7 @@ import time
 # 定义超参数
 batch_size = 128        # 批的大小
 learning_rate = 1e-2    # 学习率
-num_epoches = 20        # 遍历训练集的次数
+num_epoches = 5        # 遍历训练集的次数
 
 # 数据类型转换，转换成numpy类型
 #def to_np(x):

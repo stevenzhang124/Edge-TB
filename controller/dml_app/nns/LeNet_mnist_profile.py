@@ -98,7 +98,7 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
             loss.backward()
             end_time = time.time()
 
-            print("Backward time for layers {}: {}".format(' '.join(layer_name[index+1:-1]), end_time - start_time))
+            print("Backward time for layers {}: {}".format(' '.join(layer_name[index+1:]), end_time - start_time))
 
             optimizer.step()
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         use_gpu = False
         if use_gpu:
             model = model.cuda()
-            
+
         for name, param in model.named_parameters():
             for layer in freeze_layer:
                 if layer in name:

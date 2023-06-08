@@ -95,7 +95,7 @@ for epoch in range(num_epoches):
     print('*' * 10)
     running_loss = 0.0
 
-    for i, batch in enumerate(trainloader, 1):
+    for i, batch in enumerate(train_loader, 1):
         inputs, labels = batch
         if use_gpu:
             img = img.cuda()

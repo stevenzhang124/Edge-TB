@@ -110,6 +110,7 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
 if __name__ == '__main__':
     layer_name = ['conv1', 'conv2', 'fc1', 'fc2', 'fc3']
     for i in range(len(layer_name)-1):
+        print("For Layer ", i+1)
         freeze_layer = layer_name[0:i+1]
         # Instantiate the model and optimizer
         model = LeNet()

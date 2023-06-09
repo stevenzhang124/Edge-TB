@@ -174,7 +174,7 @@ if __name__ == '__main__':
     #     criterion = nn.CrossEntropyLoss()
     #     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-        model = LeNet()
+        model = VGG16()
         use_gpu = False
         if use_gpu:
             model = model.cuda()

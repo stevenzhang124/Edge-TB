@@ -184,5 +184,5 @@ if __name__ == '__main__':
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-        train(model, use_gpu, i, layer_name, criterion, optimizer)
+        train(model, use_gpu, criterion, optimizer)
 

@@ -1,4 +1,4 @@
-# VGG profile on MNIST dataset
+# VGG profile on cifar-10 dataset
 import torch
 from torch import nn, optim
 import torch.nn.functional as F
@@ -27,11 +27,11 @@ transform = transforms.Compose(
 	 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 # Load training data
-trainset = datasets.CIFAR10(root='../../dataset/', train=True, download=True, transform=transform)
+train_dataset = datasets.CIFAR10(root='../../dataset/', train=True, download=True, transform=transform)
 train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 
 # Load testing data
-testset = datasets.CIFAR10(root='../../dataset/', train=False, download=True, transform=transform)
+test_dataset = datasets.CIFAR10(root='../../dataset/', train=False, download=True, transform=transform)
 test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False)
 
 

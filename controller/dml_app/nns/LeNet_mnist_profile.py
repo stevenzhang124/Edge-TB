@@ -8,6 +8,7 @@ from torchvision import datasets
 import time
 # import sys
 #from logger import Logger
+from itertools import chain
 
 # 定义超参数
 batch_size = 128        # 批的大小
@@ -75,6 +76,28 @@ class LeNet(nn.Module):
         return x
 
 
+# layer_name = ['conv1', 'conv2', 'fc1', 'fc2', 'fc3']
+def layer_sizes(model):
+    sizes = {}
+    layer_sizes = {}
+    for name, param in chain(model.named_parameters(), model.named_buffers()):
+        sizes[name] = param.numel() * 4
+
+    for layer in layer_name:
+        layer_sizes[layer] = sizes[layer+'.weight'] + sizes[layer+'.bias']
+
+    return layer_sizes
+
+# lenet = LeNet()
+
+# layer_sizes = layer_sizes(lenet)
+
+# for name, size in layer_sizes.items():
+#     print(f"Size of {name} in bytes: {size}")
+
+# print(f"Total size of the model (including buffers) in bytes: {sum(layer_sizes.values())}")
+
+
 def train(model, use_gpu, index, layer_name, criterion, optimizer):
     # Training loop
     for epoch in range(num_epoches):
@@ -83,6 +106,8 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
         running_loss = 0.0
 
         for i, batch in enumerate(train_loader, 1):
+            batch_start = time.time()
+
             inputs, labels = batch
             if use_gpu:
                 img = img.cuda()
@@ -98,20 +123,44 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
             loss.backward()
             end_time = time.time()
 
-            print("Backward time for layers {}: {}".format(' '.join(layer_name[index+1:]), end_time - start_time))
+            print("Backward time for layers {}: {}".format(' '.join(layer_name[index:]), end_time - start_time))
 
+            update_start = time.time()
             optimizer.step()
+            update_end = time.time()
+            print("Weights update time for layers {}: {}".format(' '.join(layer_name[index:]), update_end - update_start))
+
 
             running_loss += loss.item()
+
+            batch_end = time.time()
+            print("Batch {} consumes: {}".format(i, batch_end - batch_start))
+
+            # for small test
+            if i == 5:
+                break
 
         print('Finish {} epoch, Loss: {:.6f}'.format(
             epoch + 1, running_loss / (len(train_dataset))))
 
 if __name__ == '__main__':
     layer_name = ['conv1', 'conv2', 'fc1', 'fc2', 'fc3']
-    for i in range(len(layer_name)-1):
-        print("For Layer ", i+1)
-        freeze_layer = layer_name[0:i+1]
+
+    # profile the size of each layer
+    model = LeNet()
+
+    layer_sizes = layer_sizes(model)
+
+    for name, size in layer_sizes.items():
+        print(f"Size of {name} in bytes: {size}")
+
+    print(f"Total size of the model (including buffers) in bytes: {sum(layer_sizes.values())}")
+
+
+
+    for i in range(len(layer_name)):
+        print("For Layer ", i)
+        freeze_layer = layer_name[0:i]
         # Instantiate the model and optimizer
         model = LeNet()
         use_gpu = False

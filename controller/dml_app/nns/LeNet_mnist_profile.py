@@ -9,6 +9,12 @@ import time
 # import sys
 #from logger import Logger
 from itertools import chain
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--gpu', action='store_true',
+                        help='use gpu or not')
+args = parser.parse_args()
 
 # 定义超参数
 batch_size = 128        # 批的大小
@@ -163,7 +169,10 @@ if __name__ == '__main__':
         freeze_layer = layer_name[0:i]
         # Instantiate the model and optimizer
         model = LeNet()
-        use_gpu = False
+        if args.gpu:
+            use_gpu = True
+        else:
+            use_gpu = False
         if use_gpu:
             model = model.cuda()
 

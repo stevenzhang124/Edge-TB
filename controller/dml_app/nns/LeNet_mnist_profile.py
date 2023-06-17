@@ -116,8 +116,8 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
 
             inputs, labels = batch
             if use_gpu:
-                img = img.cuda()
-                label = label.cuda()
+                inputs = inputs.cuda()
+                labels = labels.cuda()
             
             optimizer.zero_grad()
 

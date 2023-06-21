@@ -143,8 +143,9 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
             print("Batch {} consumes: {}".format(i, batch_end - batch_start))
 
             # for small test
-            if i == 5:
-                break
+            if index != 0:
+                if i == 5:
+                    break
 
         print('Finish {} epoch, Loss: {:.6f}'.format(
             epoch + 1, running_loss / (len(train_dataset))))

@@ -9,6 +9,13 @@ from torchvision import datasets
 import time
 # import sys
 #from logger import Logger
+from itertools import chain
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--gpu', action='store_true',
+                        help='use gpu or not')
+args = parser.parse_args()
 
 # 定义超参数
 batch_size = 128        # 批的大小
@@ -28,11 +35,11 @@ transform = transforms.Compose(
 
 # Load training data
 train_dataset = datasets.CIFAR10(root='../../dataset/', train=True, download=True, transform=transform)
-train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # Load testing data
 test_dataset = datasets.CIFAR10(root='../../dataset/', train=False, download=True, transform=transform)
-test_loader = DataLoader(testset, batch_size=batch_size, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 
 
@@ -89,42 +96,119 @@ class VGG16(nn.Module):
 		self.fc8 = nn.Linear(4096, 10)
 
 	def forward(self, x):
+		start_time = time.time()
 		x = self.relu1_1(self.conv1_1(x))
+		end_time = time.time()
+		print("forward time Conv1_1: ", end_time-start_time)
+		print("Output size Conv1_1: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu1_2(self.conv1_2(x))
 		x = self.maxpool1(x)
+		end_time = time.time()
+		print("forward time Conv1_2: ", end_time-start_time)
+		print("Output size Conv1_2: ", x.element_size() * x.nelement())
 
+		start_time = time.time()
 		x = self.relu2_1(self.conv2_1(x))
+		end_time = time.time()
+		print("forward time Conv2_1: ", end_time-start_time)
+		print("Output size Conv2_1: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu2_2(self.conv2_2(x))
 		x = self.maxpool2(x)
+		end_time = time.time()
+		print("forward time Conv2_2: ", end_time-start_time)
+		print("Output size Conv2_2: ", x.element_size() * x.nelement())
 
+		start_time = time.time()
 		x = self.relu3_1(self.conv3_1(x))
+		end_time = time.time()
+		print("forward time Conv3_1: ", end_time-start_time)
+		print("Output size Conv3_1: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu3_2(self.conv3_2(x))
+		end_time = time.time()
+		print("forward time Conv3_2: ", end_time-start_time)
+		print("Output size Conv3_2: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu3_3(self.conv3_3(x))
 		x = self.maxpool3(x)
-
+		end_time = time.time()
+		print("forward time Conv3_3: ", end_time-start_time)
+		print("Output size Conv3_3: ", x.element_size() * x.nelement())
+		
+		start_time = time.time()
 		x = self.relu4_1(self.conv4_1(x))
+		end_time = time.time()
+		print("forward time Conv4_1: ", end_time-start_time)
+		print("Output size Conv4_1: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu4_2(self.conv4_2(x))
+		end_time = time.time()
+		print("forward time Conv4_2: ", end_time-start_time)
+		print("Output size Conv4_2: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu4_3(self.conv4_3(x))
 		x = self.maxpool4(x)
-
+		end_time = time.time()
+		print("forward time Conv4_3: ", end_time-start_time)
+		print("Output size Conv4_3: ", x.element_size() * x.nelement())
+		
+		start_time = time.time()
 		x = self.relu5_1(self.conv5_1(x))
+		end_time = time.time()
+		print("forward time Conv5_1: ", end_time-start_time)
+		print("Output size Conv5_1: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu5_2(self.conv5_2(x))
+		end_time = time.time()
+		print("forward time Conv5_2: ", end_time-start_time)
+		print("Output size Conv5_2: ", x.element_size() * x.nelement())
+		start_time = time.time()
 		x = self.relu5_3(self.conv5_3(x))
 		x = self.maxpool5(x)
-
+		end_time = time.time()
+		print("forward time Conv5_3: ", end_time-start_time)
+		print("Output size Conv5_3: ", x.element_size() * x.nelement())
+		
+		start_time = time.time()
 		x = x.view(x.size(0), -1)  # Flatten the tensor
 
 		x = self.relu6(self.fc6(x))
 		x = self.dropout6(x)
-
+		end_time = time.time()
+		print("forward time fc6: ", end_time-start_time)
+		print("Output size fc6: ", x.element_size() * x.nelement())
+		
+		start_time = time.time()
 		x = self.relu7(self.fc7(x))
 		x = self.dropout7(x)
-
+		end_time = time.time()
+		print("forward time fc7: ", end_time-start_time)
+		print("Output size fc7: ", x.element_size() * x.nelement())
+		
+		start_time = time.time()
 		x = self.fc8(x)
+		end_time = time.time()
+		print("forward time fc8: ", end_time-start_time)
+		print("Output size fc8: ", x.element_size() * x.nelement())
+
 
 		return x
 
-def train(model, use_gpu, criterion, optimizer):
+
+def layer_sizes(model):
+	sizes = {}
+	layer_sizes = {}
+	for name, param in chain(model.named_parameters(), model.named_buffers()):
+		sizes[name] = param.numel() * 4
+
+	for layer in layer_name:
+		layer_sizes[layer] = sizes[layer+'.weight'] + sizes[layer+'.bias']
+
+	return layer_sizes
+
+def train(model, use_gpu, index, layer_name, criterion, optimizer):
 	# Training loop
 	for epoch in range(num_epoches):
 		print('epoch {}'.format(epoch + 1))      # .format为输出格式，formet括号里的即为左边花括号的输出
@@ -132,10 +216,12 @@ def train(model, use_gpu, criterion, optimizer):
 		running_loss = 0.0
 
 		for i, batch in enumerate(train_loader, 1):
+			batch_start = time.time()
+
 			inputs, labels = batch
 			if use_gpu:
-				img = img.cuda()
-				label = label.cuda()
+				inputs = inputs.cuda()
+				labels = labels.cuda()
 			
 			optimizer.zero_grad()
 
@@ -147,45 +233,75 @@ def train(model, use_gpu, criterion, optimizer):
 			loss.backward()
 			end_time = time.time()
 
-			# print("Backward time for layers {}: {}".format(' '.join(layer_name[index+1:]), end_time - start_time))
+			print("Backward time for layers {}: {}".format(' '.join(layer_name[index+1:]), end_time - start_time))
 
+			update_start = time.time()
 			optimizer.step()
+			update_end = time.time()
+			print("Weights update time for layers {}: {}".format(' '.join(layer_name[index:]), update_end - update_start))
 
 			running_loss += loss.item()
+
+			batch_end = time.time()
+			print("Batch {} consumes: {}".format(i, batch_end - batch_start))
+
+			# for small test
+			if index != 0:
+				if i == 5:
+					break
 
 		print('Finish {} epoch, Loss: {:.6f}'.format(
 			epoch + 1, running_loss / (len(train_dataset))))
 
 if __name__ == '__main__':
-	# layer_name = ['conv1', 'conv2', 'fc1', 'fc2', 'fc3']
-	# for i in range(len(layer_name)-1):
-	#     print("For Layer ", i+1)
-	#     freeze_layer = layer_name[0:i+1]
-	#     # Instantiate the model and optimizer
-	#     model = LeNet()
-	#     use_gpu = False
-	#     if use_gpu:
-	#         model = model.cuda()
+	layer_name = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2', 'conv3_1', 'conv3_2', 'conv3_3', 'conv4_1', 'conv4_2', 'conv4_3', 'conv5_1', 'conv5_2', 'conv5_3', 'fc6', 'fc7', 'fc8']
 
-	#     for name, param in model.named_parameters():
-	#         for layer in freeze_layer:
-	#             if layer in name:
-	#                 param.requires_grad = False
-
-	#     # start profile
-
-	#     criterion = nn.CrossEntropyLoss()
-	#     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
+	# profile the size of each layer
 	model = VGG16()
-	use_gpu = False
-	if use_gpu:
-		model = model.cuda()
+	# print(model)
+	# for name,param in model.named_parameters():
+	# 	print(name)
 
-	# start profile
+	
+	layer_sizes = layer_sizes(model)
 
-	criterion = nn.CrossEntropyLoss()
-	optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+	for name, size in layer_sizes.items():
+		print(f"Size of {name} in bytes: {size}")
 
-	train(model, use_gpu, criterion, optimizer)
+	print(f"Total size of the model (including buffers) in bytes: {sum(layer_sizes.values())}")
 
+	for i in range(len(layer_name)):
+		print("For Layer ", i)
+		freeze_layer = layer_name[0:i]
+		# Instantiate the model and optimizer
+		model = VGG16()
+		if args.gpu:
+			use_gpu = True
+		else:
+			use_gpu = False
+
+		if use_gpu:
+			model = model.cuda()
+
+		for name, param in model.named_parameters():
+			for layer in freeze_layer:
+				if layer in name:
+					param.requires_grad = False
+
+		# start profile
+
+		criterion = nn.CrossEntropyLoss()
+		optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+	# model = VGG16()
+	# use_gpu = False
+	# if use_gpu:
+	# 	model = model.cuda()
+
+	# # start profile
+
+	# criterion = nn.CrossEntropyLoss()
+	# optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+		train(model, use_gpu, i, layer_name, criterion, optimizer)
+	

@@ -260,41 +260,42 @@ if __name__ == '__main__':
 	layer_name = ['conv1_1', 'conv1_2', 'conv2_1', 'conv2_2', 'conv3_1', 'conv3_2', 'conv3_3', 'conv4_1', 'conv4_2', 'conv4_3', 'conv5_1', 'conv5_2', 'conv5_3', 'fc6', 'fc7', 'fc8']
 
 	# profile the size of each layer
-	model = VGG16()
+	# model = VGG16()
 	# print(model)
 	# for name,param in model.named_parameters():
 	# 	print(name)
 
 	
-	layer_sizes = layer_sizes(model)
+	# layer_sizes = layer_sizes(model)
 
-	for name, size in layer_sizes.items():
-		print(f"Size of {name} in bytes: {size}")
+	# for name, size in layer_sizes.items():
+	# 	print(f"Size of {name} in bytes: {size}")
 
-	print(f"Total size of the model (including buffers) in bytes: {sum(layer_sizes.values())}")
+	# print(f"Total size of the model (including buffers) in bytes: {sum(layer_sizes.values())}")
 
-	for i in range(len(layer_name)):
-		print("For Layer ", i)
-		freeze_layer = layer_name[0:i]
-		# Instantiate the model and optimizer
-		model = VGG16()
-		if args.gpu:
-			use_gpu = True
-		else:
-			use_gpu = False
+	# for i in range(len(layer_name)):
+	i = 0
+	print("For Layer ", i)
+	freeze_layer = layer_name[0:i]
+	# Instantiate the model and optimizer
+	model = VGG16()
+	if args.gpu:
+		use_gpu = True
+	else:
+		use_gpu = False
 
-		if use_gpu:
-			model = model.cuda()
+	if use_gpu:
+		model = model.cuda()
 
-		for name, param in model.named_parameters():
-			for layer in freeze_layer:
-				if layer in name:
-					param.requires_grad = False
+	for name, param in model.named_parameters():
+		for layer in freeze_layer:
+			if layer in name:
+				param.requires_grad = False
 
-		# start profile
+	# start profile
 
-		criterion = nn.CrossEntropyLoss()
-		optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+	criterion = nn.CrossEntropyLoss()
+	optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 	# model = VGG16()
 	# use_gpu = False
@@ -306,5 +307,5 @@ if __name__ == '__main__':
 	# criterion = nn.CrossEntropyLoss()
 	# optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-		train(model, use_gpu, i, layer_name, criterion, optimizer)
+	train(model, use_gpu, i, layer_name, criterion, optimizer)
 	

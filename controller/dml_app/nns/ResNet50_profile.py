@@ -40,8 +40,8 @@ train_dataset = datasets.FashionMNIST(root='../../dataset/', train=True, downloa
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 # Load testing data
-test_dataset = datasets.FashionMNIST(root='../../dataset/', train=False, download=True, transform=transform)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+# test_dataset = datasets.FashionMNIST(root='../../dataset/', train=False, download=True, transform=transform)
+# test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 
 # Define a single block in a ResNet

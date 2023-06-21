@@ -217,7 +217,10 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
 			print("Batch {} consumes: {}".format(i, batch_end - batch_start))
 
 			# for small test
-			if index != 0:
+			if index == 0:
+				if i == 10:
+					break
+			else:
 				if i == 5:
 					break
 

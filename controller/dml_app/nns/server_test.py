@@ -200,7 +200,7 @@
 #     app.run(host='localhost', port=5001, debug=True)
 
 
-# the following code is only for profiling the communication capabilities
+# python
 import torch
 from flask import Flask, request
 

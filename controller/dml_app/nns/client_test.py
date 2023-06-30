@@ -140,6 +140,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import time
+from typing import Dict, IO
 
 def send_data (method: str, path: str, address: str, port: int = None,
         data: Dict [str, str] = None, json = None, files: Dict [str, IO] = None) -> str:

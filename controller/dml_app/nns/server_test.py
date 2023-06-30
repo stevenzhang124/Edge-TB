@@ -182,19 +182,43 @@
 # if __name__ == '__main__':
 #     app.run(host='localhost', port=5001)
 
+# from flask import Flask, request
+
+# app = Flask(__name__)
+
+# @app.route('/endpoint', methods=['POST'])
+# def handle_request():
+#     data = request.form.get('key')
+#     file = request.files.get('file')
+#     # do something with the data and the file
+#     print(data)
+#     print(file.read())
+
+#     return 'success'
+
+# if __name__ == '__main__':
+#     app.run(host='localhost', port=5001, debug=True)
+
+
+# the following code is only for profiling the communication capabilities
+import torch
 from flask import Flask, request
 
 app = Flask(__name__)
 
 @app.route('/endpoint', methods=['POST'])
 def handle_request():
-    data = request.form.get('key')
-    file = request.files.get('file')
-    # do something with the data and the file
-    print(data)
-    print(file.read())
+    weights_rb = request.files.get ('weights')
+    # weights_rb.save('model2.pkl')
+    # weights = torch.load('model2.pkl')
+    weights = torch.load(weights_rb)
+    # weights = request.get_json()['weights']
+    print("parse weights")
 
     return 'success'
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)
+
+
+

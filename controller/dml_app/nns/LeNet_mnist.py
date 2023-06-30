@@ -32,7 +32,7 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 # 定义 LeNet Convolution Network 模型
 class LeNet(nn.Module):
     def __init__(self, in_dim, n_class):
-        super(Cnn, self).__init__()    # super用法:Cnn继承父类nn.Model的属性，并用父类的方法初始化这些属性
+        super(LeNet, self).__init__()    # super用法:Cnn继承父类nn.Model的属性，并用父类的方法初始化这些属性
         self.conv = nn.Sequential(     #padding=2保证输入输出尺寸相同(参数依次是:输入深度，输出深度，ksize，步长，填充)
             nn.Conv2d(in_dim, 6, 5, stride=1, padding=2),
             nn.ReLU(True),

@@ -219,6 +219,8 @@ def train(model, use_gpu, index, layer_name, criterion, optimizer):
 			batch_start = time.time()
 
 			inputs, labels = batch
+			print(inputs.element_size()*inputs.nelement())
+			print(labels.element_size()*labels.nelement())
 			if use_gpu:
 				inputs = inputs.cuda()
 				labels = labels.cuda()

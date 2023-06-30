@@ -206,7 +206,7 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-@app.route('/endpoint', methods=['POST'])
+@app.route('/train', methods=['POST'])
 def handle_request():
     weights_rb = request.files.get ('weights')
     # weights_rb.save('model2.pkl')
